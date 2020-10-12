@@ -1,0 +1,143 @@
+<!--
+ * @Description: 波兰式
+ * @Author: Zale Ying
+ * @Date: 2020-09-26 09:52:04
+ * @LastEditTime: 2020-09-26 17:38:29
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let str = '1+2*((3+4)*(3+3)/3)'
+        function Container(str) {
+            let arr = str.split('')
+            if (arr.indexOf('(') > -1) {
+                arr = deleteKh(arr);
+            }
+            let a1 = computerCF(arr)
+            console.log(a1)
+            let a2 = computerAdd(a1)
+            console.log(a2)
+            
+        }
+
+        function deleteKh(allArr) {
+            
+            let kLeft=[]    // 定义左边括弧的位置
+            let kRight=allArr.indexOf(')');   // 定义右边第一个括弧的位置
+            allArr.forEach((ele, index) => {
+                if (ele === '(') kLeft.push(index)
+            });
+            
+            // 比大小找到和右边括号最近左边括号进行配对
+            let num = 0
+            for(var i=0; i<kLeft.length; i++){
+                if (kRight>kLeft[i]) num=i;
+            }
+            // 将该括号内的元素进行计算
+            let [...arr] = allArr.slice(kLeft[num]+1, kRight)
+            let a1 = getNewSectionalArr(arr);
+            let a2 = computerCF(a1)
+            let a3 = computerAdd(a2);
+            console.log('a3......' + a3)
+            // 将a3 替换到原数组中
+            allArr.splice(kLeft[num], kRight-kLeft[num]+1, a3);
+            console.log(allArr)
+            if (allArr.indexOf('(') > -1) deleteKh(allArr)
+            return allArr;
+        }
+        Container(str)
+       
+        let brr = ["1", "2", "3", "+", "3", "4", "*", "5", '5']
+         // 分割原数组中该数组的位置进行计算
+        function getNewSectionalArr(arr) {
+            let time = 0
+            let nums = '#'
+            let crr = []
+            // 合并分散出去的数字
+            arr.forEach((item, int) => {
+                let obj = {
+                    '+': true,
+                    '-': true,
+                    '*': true,
+                    '/': true,
+                }
+                if (obj[item]) {
+                    if (nums.slice(1)) {
+                        crr.push(nums.slice(1))
+                    }
+                    crr.push(item)
+                    nums = '#'
+                } else {
+                    nums += item
+                }
+                if (int === arr.length-1) {
+                    crr.push(nums.slice(1))
+                }
+            })
+            console.log(crr)
+            return crr; 
+        }
+
+        // 乘法
+        function computerCF(arr) {
+            let brr = []
+            let isBreak = false
+            arr.forEach((item, index) => {
+                switch (item) {
+                    case '*': 
+                        brr.pop();
+                        brr.push(arr[index-1]*arr[index+1])
+                        isBreak = true
+                        break;
+
+                    case '/':
+                        brr.pop();
+                        brr.push(arr[index-1]/arr[index+1])
+                        isBreak = true
+                        break
+
+                    default: 
+                        !isBreak && brr.push(item)
+                        if (isBreak) isBreak = false
+                        break
+                }
+                console.log(brr)
+            })
+            return brr
+        }
+
+        // 加法
+        function computerAdd(arr) {
+            let sum = 0
+            let isBreak = false
+            arr.forEach((item, index) => {
+                switch (item) {
+                    case '+': 
+                        isBreak = true
+                        sum = sum + parseInt(arr[index+1])
+                        break;
+
+                    case '-':
+                        isBreak = true
+                        sum = sum - parseInt(arr[index+1])
+                        break
+
+                    default: 
+                        !isBreak && (sum = parseInt(item))
+                        if (isBreak) isBreak = false
+                        break
+                }
+            })
+            return sum
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!--
+ * @Description: 
+ * @Author: Zale Ying
+ * @Date: 2020-09-28 17:13:36
+ * @LastEditTime: 2020-10-01 23:28:17
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let ARRAY_METHOD = [
+            'push',
+            'pop',
+            'shift',
+            'unshift',
+            'reverse',
+            'sort',
+            'splice'
+        ]
+
+        // 继承关系： arr -> Array.prototype -> Object.prototype -> ...
+        // 继承关系： arr -> 改写的方法 -> Array.prototype -> Object.prototype -> ...
+
+        // 创建一个新的对象，使用现有的对象来提供新创建的对象proto。
+        let array_methods = Object.create(Array.prototype)
+
+        ARRAY_METHOD.forEach(method => {
+            array_methods[method] = function () {
+                console.log(`调用了拦截的${method}方法`);
+
+                // 对参数进行响应式化
+                for(let i=0; i<arguments.length; i++) {
+                    reactify(arguments[i])
+                }
+                // 调用原来的方法
+                let res = Array.prototype[method].apply(this, arguments);
+                return res;
+            }
+        })
+        
+        let data = {
+            name: 'zhangsan',
+            age: 19,
+            course: [
+                {
+                    name: '语文',
+                },
+                {
+                    name: '数学'
+                },
+                {
+                    name: '英语'
+                }
+            ],
+            arr: ['1',2,3],
+            children: {name: 'lisi'}
+        }
+
+        function defineReactive(target, key, value, enumerable) {
+            if(typeof value === 'object' && value !=null && !Array.isArray(value)) {
+                // 非数组引用类型
+                reactify(value)
+            }
+            Object.defineProperty(target, key , {
+                configurable: true,
+                enumerable: !!enumerable,
+                get() {
+                    console.log(`读取o的${key}属性`);
+                    return value
+                },
+                set(newVal) {
+                    if (value === newVal) return
+                    let oldIsArray = Array.isArray(value);
+                    let newIsArray = Array.isArray(newVal);
+                    if (typeof value != typeof newVal) {
+                        if (Array.isArray(newVal)) {
+                            newVal.__proto__ = array_methods
+                        } else if (typeof newVal === 'object') {
+                            reactify(newVal)
+                        } else if (typeof newVal === 'string') {
+                            defineReactive(target, key, value, true)
+                        }
+                    }
+                    
+                    if(typeof newVal === 'object' && !Array.isArray(value) === Array.isArray(newVal)) {
+                        if (Array.isArray(newVal)) {
+                            
+                        }
+                    }
+                    
+                    console.log(`设置o的${key}属性为${newVal}`);
+                    value = newVal
+                }
+            })
+        }
+
+        // 将对象响应式化
+        function reactify(o) {
+            let keys = Object.keys(o);
+            for (let i = 0; i< keys.length; i++) {
+                let key = keys[i]
+                let value = o[key];
+                // 判断这个属性是不是引用类型，判断是不是数组类型
+                if(Array.isArray(value)) {
+                    value.__proto__ = array_methods
+                    for (let j = 0; j<value.length; j++) {
+                        if (typeof value[j] != 'object' && !Array.isArray(value[j])) reactify(value[j])
+                    }
+                } else {
+                    if (typeof o === 'object') defineReactive(o, key, value, true)
+                }
+            }
+        }
+
+        reactify(data)
+
+        
+    </script>
+</body>
+</html>

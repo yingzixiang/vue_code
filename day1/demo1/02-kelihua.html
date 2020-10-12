@@ -1,0 +1,39 @@
+<!--
+ * @Description: 
+ * @Author: Zale Ying
+ * @Date: 2020-09-25 15:35:13
+ * @LastEditTime: 2020-09-26 17:48:09
+ * @LastEditors: Zale Ying
+-->
+<!--
+ * @Description: 函数科里化
+ * @Author: Zale Ying
+ * @Date: 2020-09-25 15:35:13
+ * @LastEditTime: 2020-09-25 15:42:14
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let tags = 'div,p,a,img,ul,li'.split(',');
+        function makeMap(keys) {
+            let set = {};
+            tags.forEach(element => {
+                set[element] = true
+            });
+
+            return function (tagName) {
+                return !!set[tagName.toLowerCase()]
+            }
+        }
+
+        let isHTMLTag = makeMap(tags); // 返回的函数
+    </script>
+</body>
+</html>

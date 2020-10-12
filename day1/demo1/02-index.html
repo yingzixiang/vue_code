@@ -1,0 +1,115 @@
+<!--
+ * @Description: 手写vue数据驱动2
+ * @Author: Zale Ying
+ * @Date: 2020-09-24 19:47:31
+ * @LastEditTime: 2020-09-27 14:46:10
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="dom1">
+        <div>
+            <p>{{name.firstName}} - {{message}}</p>
+        </div>
+        <p>{{name.lastName}}</p>
+        <p>{{message}}</p>
+    </div>
+    <script>
+        let rbrackets = /\{\{(.+?)\}\}/g;
+        // 这个函数在vue编译模板的时候就生成了
+        function createGetValueByPath(path) {
+            let paths = path.split('.');
+            return function getValueByPath(obj) {
+                let res = obj;
+                let prop;
+                while(prop = paths.shift()) {
+                    res = res[prop];
+                }
+                return res;
+            }
+        }
+
+        function compiler( template, data ) {
+            let childNodes = template.childNodes;   // 取出子元素
+            for (let i = 0; i < childNodes.length; i++) {
+                let type = childNodes[i].nodeType; // 1. 元素， 3 文本
+                if (type === 3) {
+                    // 文本节点， 可以判断里面是否有{{}}插值
+                    let txt = childNodes[i].nodeValue; // 该属性只有文本节点才有意义
+
+                    // 判断有没有双括号
+                    txt = txt.replace(rbrackets, function(_, g) { // 使用正则匹配一次，函数就会被调用一次
+                        let key = g.trim();
+                        // let value = data[key];
+                        // return value;
+                        let getValueByPath = createGetValueByPath(key);
+                        return getValueByPath(data);
+                    });
+                    childNodes[i].nodeValue = txt
+                } else if (type === 1) {
+                    // 判断是否还有子元素
+                    compiler(childNodes[i], data)
+                }
+            }
+        }
+        function JGVue(options) {
+            // 习惯，内部数据使用_开头，只读数据使用$开头
+            this._data = options.data;
+            this._el = options.el;
+            
+            // 准备模板
+            this.$el = this._templateDOM = document.querySelector(this._el);
+
+            this._parent = this._templateDOM.parentNode
+
+            // 渲染工作
+            this.render()
+        }
+
+        /** 将模板即可数据，得到HTML加载到页面中 */
+        JGVue.prototype.render = function () {
+            this.compiler()
+        }
+
+        /** 编译将模板和数据结合得到真正的DOM元素 */
+        JGVue.prototype.compiler = function () {
+            let realHMTLDOM = this._templateDOM.cloneNode(true);
+            compiler(realHMTLDOM, this._data);
+            this.update(realHMTLDOM);
+        }
+
+        /** 将DOM元素放到页面中 */
+        JGVue.prototype.update = function(real) {
+            this._parent.replaceChild(real, document.querySelector('#dom1'));
+        }
+
+        let app = new JGVue ({
+            el: '#dom1',
+            data: {
+                name: {
+                    firstName: 'zale',
+                    lastName: 'ying'
+                },
+                message: '吃饭了ß'
+            }
+        })
+
+        // 用字符串路径来获取访问对象的成员
+        function getValueByPath(obj, path) {
+            let paths = path.split('.');
+            let res = obj;
+            res = obj[paths[0]];
+            while(prop = paths.shift()) {
+                res = res[prop];
+            }
+            return res;
+        }
+    </script>
+</body>
+</html>

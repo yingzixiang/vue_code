@@ -1,0 +1,77 @@
+<!--
+ * @Description: 
+ * @Author: Zale Ying
+ * @Date: 2020-09-28 10:50:50
+ * @LastEditTime: 2020-09-28 11:25:11
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let o = {
+            name: 'zale',
+            age: 19,
+            gender: 'aaa'
+        }
+
+        Object.defineProperty(o, 'age', {
+            configurable: true,
+            writable: true,
+            enumerable: true,
+            value: 19
+        })
+
+        // get 和 set (要响应式就表示在赋值和读取的时候，附带要做一些事情)
+        let _gender
+        Object.defineProperty(o, 'gender', {
+            configurable: true,
+            enumerable: true,
+            get() { // 如果使用o.gender来访问，就会调用get方法（getter，读取器）
+                return _gender
+            },
+            set(newVal) {
+                console.log('赋值的值为：', newVal);
+            }
+        })
+
+        // 如果同时使用get和set需要一个中间变量存储真正的值
+
+        // 问题 _gender 被暴露在全局作用域
+
+        // 在vue中使用了defineReactive(target, key ,value, enumerable)
+
+        let obj = {
+            name: 'zale',
+            age: 12
+        }
+
+        function defineReactive(target, key, value, enumerable) {
+            Object.defineProperty(target, key , {
+                configurable: true,
+                enumerable: !!enumerable,
+
+                get() {
+                    console.log(`读取o的${key}属性`);
+                    return value
+                },
+
+                set(newVal) {
+                    console.log(`设置o的${key}属性为${newVal}`);
+                    value = newVal
+                }
+            })
+        }
+
+        let keys = Object.keys(obj);
+        for (let i =0; i< keys.length; i++) {
+            defineReactive(obj, keys[i], o[keys[i]], true);
+        }
+    </script>
+</body>
+</html>

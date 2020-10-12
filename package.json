@@ -1,0 +1,19 @@
+{
+  "name": "vue_code",
+  "version": "1.0.0",
+  "description": "vue源码解读",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yingzixiang/vue_code.git"
+  },
+  "author": "zale ying",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yingzixiang/vue_code/issues"
+  },
+  "homepage": "https://github.com/yingzixiang/vue_code#readme"
+}

@@ -1,0 +1,103 @@
+<!--
+ * @Description: 手写vue数据驱动1
+ * @Author: Zale Ying
+ * @Date: 2020-09-24 19:47:31
+ * @LastEditTime: 2020-09-28 17:07:56
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../node_modules/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="dom1">
+        <div>
+            <p>{{name}} - {{message}}</p>
+        </div>
+        <p>{{name}}</p>
+        <p>{{message}}</p>
+        <ul>
+            <li v-for="item in arr">{{item}}</li>
+        </ul>
+    </div>
+    <script>
+
+        // let app = new Vue ({
+        //     el: '#dom1',
+        //     data: {
+        //         name: 'zale',
+        //         message: '吃饭了ß',
+        //         arr: [1, 2, 3, 4]
+        //     },
+        //     created() {
+        //         let _self = this;
+        //         setTimeout(function() {
+        //             console.log(123);
+        //             console.log(_self.arr);
+        //             // 这个方法无法在vue2中被监听到
+        //             _self.arr.length = 0;
+        //             console.log(_self.arr);
+        //         }, 3000)
+        //     }
+        // })
+        
+        // 1. 拿到模板
+        // 2. 拿到数据
+        // 3. 将数据与模板结合，得到的是HTML
+        // 4. 放到页面中
+
+        // 1
+        let tmpNode = document.querySelector("#dom1");
+
+        let rbrackets = /\{\{(.+?)\}\}/g;
+
+        // 2
+        let  data= {
+            name: 'zale',
+            message: '吃饭了ß'
+        };
+
+        // 3 将数据放到模板中 使用递归
+        // 源码实现 DOM -> 字符串模板 -> VNode -> 真正的DOM
+        function compiler( template, data ) {
+            let childNodes = template.childNodes;   // 取出子元素
+            for (let i = 0; i < childNodes.length; i++) {
+                let type = childNodes[i].nodeType; // 1. 元素， 3 文本
+                if (type === 3) {
+                    // 文本节点， 可以判断里面是否有{{}}插值
+                    let txt = childNodes[i].nodeValue; // 该属性只有文本节点才有意义
+
+                    // 判断有没有双括号
+                    txt = txt.replace(rbrackets, function(_, g) { // 使用正则匹配一次，函数就会被调用一次
+                        let key = g.trim();
+                        let value = data[key];
+                        return value;
+                    });
+                    childNodes[i].nodeValue = txt
+                } else if (type === 1) {
+                    // 判断是否还有子元素
+                    compiler(childNodes[i], data)
+                }
+            }
+        }
+        
+        let generateNode = tmpNode.cloneNode(true); // dom元素可以这么用
+
+        console.log(generateNode);
+        compiler(generateNode, data);
+        console.log(generateNode);
+
+        // 4 放到页面当中
+        // dom1.parentNode.replaceChild(generateNode, dom1);
+        
+        // 问题：
+        // 1. vue使用虚拟dom，这里是真实dom
+        // 2. 只考虑了单属性，而vue中大量的使用了层级（{{data.name, data.age}})
+        // 3. 代码没有整合
+    </script>
+</body>
+</html>

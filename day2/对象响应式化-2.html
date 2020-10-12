@@ -1,0 +1,75 @@
+<!--
+ * @Description: 
+ * @Author: Zale Ying
+ * @Date: 2020-09-28 11:30:44
+ * @LastEditTime: 2020-09-28 12:00:13
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let data = {
+            name: 'zhangsan',
+            age: 19,
+            course: [
+                {
+                    name: '语文',
+                },
+                {
+                    name: '数学'
+                },
+                {
+                    name: '英语'
+                }
+            ],
+            arr: [1,2,3]
+        }
+
+        function defineReactive(target, key, value, enumerable) {
+            if(typeof value === 'object' && value !=null && !Array.isArray(value)) {
+                // 非数组引用类型
+                reactify(value)
+            }
+            Object.defineProperty(target, key , {
+                configurable: true,
+                enumerable: !!enumerable,
+
+                get() {
+                    console.log(`读取o的${key}属性`);
+                    return value
+                },
+
+                set(newVal) {
+                    console.log(`设置o的${key}属性为${newVal}`);
+                    value = newVal
+                }
+            })
+        }
+
+        // 将对象响应式化
+        function reactify(o) {
+            let keys = Object.keys(o);
+            for (let i = 0; i< keys.length; i++) {
+                let key = keys[i]
+                let value = o[key];
+                // 判断这个属性是不是引用类型，判断是不是数组类型
+                if(Array.isArray(value)) {
+                    for (let j = 0; j<value.length; j++) {
+                        reactify(value[j])
+                    }
+                } else {
+                    defineReactive(o, key, value, true)
+                }
+            }
+        }
+
+        reactify(data)
+    </script>
+</body>
+</html>

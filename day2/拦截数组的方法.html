@@ -1,0 +1,47 @@
+<!--
+ * @Description: 
+ * @Author: Zale Ying
+ * @Date: 2020-09-28 13:29:53
+ * @LastEditTime: 2020-09-28 17:10:46
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let ARRAY_METHOD = [
+            'push',
+            'pop',
+            'shift',
+            'unshift',
+            'reverse',
+            'sort',
+            'splice'
+        ]
+
+        // 原型式继承： 修改原型链的结构
+        let arr = []
+        // 继承关系： arr -> Array.prototype -> Object.prototype -> ...
+        // 继承关系： arr -> 改写的方法 -> Array.prototype -> Object.prototype -> ...
+
+        // 创建一个新的对象，使用现有的对象来提供新创建的对象proto。
+        let array_methods = Object.create(Array.prototype)
+
+        ARRAY_METHOD.forEach(method => {
+            array_methods[method] = function () {
+                console.log(`调用了拦截的${method}方法`);
+                // 调用原来的方法
+                let res = Array.prototype[method].apply(this, arguments);
+                return res;
+            }
+        })
+
+        arr.__proto__ = array_methods
+    </script>
+</body>
+</html>
