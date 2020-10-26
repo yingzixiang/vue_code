@@ -1,0 +1,65 @@
+<!--
+ * @Description: 事件代理函数
+ * @Author: Zale Ying
+ * @Date: 2020-10-14 10:14:11
+ * @LastEditTime: 2020-10-20 16:32:14
+ * @LastEditors: Zale Ying
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+         var eventObjs
+        // 全局event 对象，提供on, off, emit 方法
+        var event = (function() {
+            eventObjs = {}
+
+            return {
+                /** 注册事件， 可以连续注册，可以注册多个事件*/
+                on: function (type, handler) {
+                    (eventObjs[type] || (eventObjs[type] = [])).push(handler)
+                },
+
+                /** 移除事件
+                 * - 如果没有参数，移除所有事件
+                 * - 如果只带有事件名参数，就移除这个事件名下的所有事件
+                 * - 如果带有两个参数，那么就是表示移除某一个事件的具体处理函数
+                 * */
+                off: function (type, hander) {
+                    if (arguments.length === 0) eventObjs = {}
+                    else if (arguments.length === 1) eventObjs[type] = []
+                    else if (arguments.length === 2) {
+                        let _events = eventObjs[type];
+                        if (!_events) return
+                        // 倒着循环数组的序号不会受到影响
+                        for (let i = _events.length - 1; i >= 0; i--) {
+                            if (_events[i] === hander) {
+                                _events.splice(i, 1);
+                            }
+                        }
+                    }
+                },
+                emit: function(type) {
+                    let args = Array.prototype.slice.call(arguments, 1);
+                    let _evnets  = eventObjs[type];
+                    if (!_events) return;
+                    for (let i = 0; i < _events.length; i++) {
+                        // 如果要绑定上下文就需要使用call或apply
+                        _events[i].apply(null, args);
+                    }
+                }
+            }
+        }());
+    </script>
+
+    <script>
+        event.on('click', function(){console.log(1)});
+        event.on('blur', function(){console.log(2)});
+    </script>
+</body>
+</html>
